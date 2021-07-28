@@ -69,7 +69,6 @@ sub.on("reconnecting", function () {
   };
   client.trackEvent({ name: "redisSubConnMsg", properties: propertySet });
   client.trackMetric({ name: "redisSubReconnect", value: 1.0 });
-  // console.log("reconnecting")
 });
 
 sub.on("ready", function () {
@@ -85,7 +84,7 @@ sub.on("ready", function () {
 function subscribeAllChannels(subscriberFileName) {
   try {
     const data = fs.readFileSync('./files/' + subscriberFileName + '.txt', 'utf-8');
-    console.log(data);
+    // console.log(data);
     var subArray = data.split(',');
     // store a map of element,index
     // subArray.forEach(element => console.log(element))
@@ -137,7 +136,6 @@ function executeAfterReady(channelName) {
         descriptiveMessage: "subscribed to channel",
         channelId: channelName
       };
-      console.log("channel subscribed: " + channelName)
       channelToIndexMap.set(channelName, index);
       indexToChannelMap.set(index, channelName);
       index++;
@@ -166,7 +164,6 @@ sub.on("message", (channel, message) => {
 
 function processData(channel, message) {
   var messageObject = JSON.parse(message);
-  // console.log("Channel: " + channel + " content: " + messageObject.content)
   var subIndex = channelToIndexMap.get(channel);
   processMessage(messageObject, subIndex);
   totalMessageReceived[subIndex]++;
@@ -210,7 +207,6 @@ function processMessage(messageObject, subIndex) {
       missingElementsMap.set(subIndex, mySet);
       missingContentMap.set(subIndex, myMap);
     } else {
-      console.log("out of sequence: " + messageObject.content + " sequence: " + sequence);
       var propertySet = {
         OutOfSequenceContent: messageObject.content,
         CurrentSequence: sequence[index],
@@ -261,8 +257,6 @@ function sendMetric(channelName, index) {
       lostMessages: lostMessages[index],
       MessageBatchReceived: messageBatchReceived[index],
     };
-    // console.log("event: " + JSON.stringify(propertySet))
-    // console.log("metrics: " + JSON.stringify(metrics))
     client.trackEvent({
       name: "subEvents",
       properties: propertySet,
