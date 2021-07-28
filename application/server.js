@@ -3,6 +3,7 @@ var constants = require("./constants");
 var Message = require("./Message");
 const fs = require('fs');
 const os = require('os');
+const process = require('process');
 var processId = os.hostname() + "-" + Math.random().toString(36).substring(7);
 
 var myargs = process.argv.slice(2); // channelName, subscriberId
@@ -209,8 +210,9 @@ function processMessage(messageObject, subIndex) {
     } else {
       var propertySet = {
         OutOfSequenceContent: messageObject.content,
-        CurrentSequence: sequence[index],
-        channelId: indexToChannelMap.get(index)
+        CurrentSequence: sequence[subIndex],
+        channelId: indexToChannelMap.get(subIndex),
+        process: process.pid
       };
       client.trackEvent({ name: "outOfSequence", properties: propertySet });
       for (var i = sequence[subIndex] + 1; i < messageObject.content; i++) {
@@ -219,7 +221,7 @@ function processMessage(messageObject, subIndex) {
         var mySet = new Set();
         var myMap = new Map();
         if (missingElementsMap.has(subIndex)) {
-          set = missingElementsMap.get(subIndex);
+          mySet = missingElementsMap.get(subIndex);
         }
         if (missingContentMap.has(subIndex)) {
           myMap = missingContentMap.get(subIndex);
